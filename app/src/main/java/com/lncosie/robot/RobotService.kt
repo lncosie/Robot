@@ -11,13 +11,13 @@ import com.lncosie.robot.flow.*
 
 class RobotService : AccessibilityService() {
 
-    val runner= WorkflowRunner(Envirment("user","welcome",this))
+    val runner= WorkflowRunner(Envirment("user","welcome","jyshu001",this))
     val workflow= WorkFlow()
     lateinit var start: Node
 
     override fun onCreate() {
         super.onCreate()
-        workflow.make_flow()
+        workflow.make()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

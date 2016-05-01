@@ -14,5 +14,6 @@ class Ptr<T>(var ptr:(()-> T)?=null) {
     fun reset(init: T){
         ptr={init}
     }
+    fun notNull()=ptr!=null
     val  value by lazy { ptr!!()}
 }

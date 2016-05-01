@@ -6,61 +6,91 @@ import com.lncosie.toolkit.Ptr
 /**
  * Created by lncosie on 2016/4/30.
  */
-class WorkFlow{
+class WorkFlow {
 
 
-    private val photo_goto= Ptr<Node>()
-    private val run_reset = Ptr<Node>()
-    private val run_finish= Ptr<Node>()
+    private val NodeGotoPhoto = Ptr<Node>()
 
-    fun autoWork():Node {
-        return run_reset.value
-    }
-    fun manWork():Node{
-        return photo_goto.value
-    }
-    fun finish():Node{
-        return run_finish.value
+    private val NodeStart = Ptr<Node>()
+    private val NodeFinish = Ptr<Node>()
+
+    fun autoWork(): Node {
+        return NodeStart.value
     }
 
-    fun make_flow(){
-        //exit
-        run_finish.reset(Node(RunFinish(), nop, nop))
-        //reset
-        run_reset.reset(Node(WxClose(), run_start, run_finish))
+    fun manWork(): Node {
+        return NodeGotoPhoto.value
+    }
+
+    fun finish(): Node {
+        return NodeFinish.value
+    }
+
+    fun make() {
         //start
-        run_start.reset(Node(WxOpen(), friend_open, run_finish))
-        //accept
-        friend_open.reset(Node(FriendOpen(), friend_accept, nop))
-        friend_accept.reset(Node(FriendAccept(), log_open, nop))
-        log_open.reset(Node(LogOpenUser(), message_welcome, nop))
-        message_welcome.reset(Node(MessageSend(), photo_goto, nop))
+        MakeStartFinishNode()
+        ConfigServer()
+        ResetForRun()
+        AcceptNewFriend()
         //photo
-        photo_goto.reset(Node(PhotoGoto(), photo_scroll, nop))
-        photo_scroll.reset(Node(PhotoScroll(), db_read_upload, nop))
-        //upload
-        db_read_upload.reset(Node(DbUpload(), wx_close, nop))
-        //send finish
-        wx_close.reset(Node(WxClose(), wx_open, nop))
-        wx_open.reset(Node(WxOpen(), friend_gochat, nop))
-        friend_gochat.reset(Node(FriendGotoChat(), friend_accept, nop))
-        friend_say_finish.reset(Node(MessageSend(), log_close, run_reset))
-        //redo
-        log_close.reset(Node(LogCloseUser(), run_reset, run_reset))
+        FetchDataAndUpload()
+        FinishAndFetchNew()
     }
-    val run_start= Ptr<Node>()
-    val wx_open=Ptr<Node>()
-    val wx_close=Ptr<Node>()
-    val friend_open= Ptr<Node>()
-    val friend_accept= Ptr<Node>()
-    val log_open= Ptr<Node>()
-    val message_welcome= Ptr<Node>()
-    val photo_scroll= Ptr<Node>()
-    val db_read_upload= Ptr<Node>()
-    val log_close= Ptr<Node>()
-    val friend_gochat= Ptr<Node>()
-    val friend_say_finish = Ptr<Node>()
 
-    val nop= Ptr<Node>()
+
+
+    private fun MakeStartFinishNode() {
+        val NodeOpenWechat = Ptr<Node>()
+        NodeFinish.reset(Node(RunFinish(), nop, nop))
+        NodeStart.reset(Node(Nop(), NodeOpenWechat, NodeFinish))
+        NodeOpenWechat.reset(Node(WxOpen(), NodeGotoMe, NodeFinish))
+    }
+
+    private fun ConfigServer() {
+        val NodeSaveID = Ptr<Node>()
+        NodeGotoMe.reset(Node(FromHomeToMe(), NodeSaveID, NodeFinish))
+        NodeSaveID.reset(Node(SaveMeId(), NodeReset, NodeFinish))
+    }
+
+    private fun ResetForRun() {
+        //reset
+        NodeReset.reset(Node(WxClose(), NodeOpenWechat, NodeFinish))
+        //start
+        NodeOpenWechat.reset(Node(WxOpen(), NodeOpenNewFriends, NodeFinish))
+    }
+
+    private fun AcceptNewFriend() {
+        //accept
+        NodeOpenNewFriends.reset(Node(FriendOpen(), NodeAcceptFriend, NodeReset))
+        NodeAcceptFriend.reset(Node(FriendAccept(), NodeSayWelcome, NodeReset))
+        NodeSayWelcome.reset(Node(MessageSend(), NodeGotoPhoto, NodeReset))
+    }
+    private fun FetchDataAndUpload() {
+        NodeGotoPhoto.reset(Node(GotoPage(WechatId.IDDetailPhotos), NodeScrollPhoto, nop))
+        NodeScrollPhoto.reset(Node(ScrollWhileFind(WechatId.IDDetailPhotos, WechatId.IDPhotoEndline), NodeUploadDb, nop))
+        //upload
+        NodeUploadDb.reset(Node(DbUpload(), NodeCloseWechat, nop))
+    }
+    private fun FinishAndFetchNew() {
+        //send finish
+        NodeCloseWechat.reset(Node(WxClose(), NodeReopenWechat, nop))
+        NodeReopenWechat.reset(Node(WxOpen(), NodeChatWith, nop))
+        NodeChatWith.reset(Node(FromChatHistoryToChat(), NodeAcceptFriend, nop))
+        NodeSayFinish.reset(Node(MessageSend(), NodeReset, NodeReset))
+    }
+    val NodeGotoMe = Ptr<Node>()
+    val NodeOpenWechat = Ptr<Node>()
+    val NodeReopenWechat = Ptr<Node>()
+    val NodeCloseWechat = Ptr<Node>()
+    val NodeReset = Ptr<Node>()
+    val NodeOpenNewFriends = Ptr<Node>()
+    val NodeAcceptFriend = Ptr<Node>()
+    val NodeSayWelcome = Ptr<Node>()
+    val NodeScrollPhoto = Ptr<Node>()
+    val NodeUploadDb = Ptr<Node>()
+    val NodeChatWith = Ptr<Node>()
+    val NodeSayFinish = Ptr<Node>()
+
+    val nop = Ptr<Node>()
 
 }

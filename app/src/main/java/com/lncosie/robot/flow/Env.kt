@@ -10,4 +10,5 @@ import com.lncosie.wxrobot.RobotService
 data class Event(val service: RobotService, val event: AccessibilityEvent)
 data class Envirment(var user:String,
                      var msg:String,
+                     var wxid:String,
                      val context: Context)

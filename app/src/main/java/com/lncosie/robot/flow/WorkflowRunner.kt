@@ -11,11 +11,12 @@ import java.util.concurrent.TimeoutException
  */
 class WorkflowRunner(val envirment: Envirment) {
     private val executor = Executors.newSingleThreadExecutor()
-    private lateinit var current: Node
+    private @Volatile lateinit var current: Node
     private @Volatile var busy = true
     private var timeTaskStart=0L
     fun start(start: Node) {
         current = start
+        timeTaskStart=System.currentTimeMillis()
         switchTask(Task.Direction.Forward)
         busy = false
     }
@@ -48,16 +49,16 @@ class WorkflowRunner(val envirment: Envirment) {
             log("Switch Node:${if (dir == Task.Direction.Forward) "Forward" else "Backward"}")
             current = if (dir == Task.Direction.Forward) current.forward.value else current.backward.value
             taskStart()
-        }while(current.task.isPassive())
+        }while(!current.task.isPassive())
     }
 
     fun step(event: Event) {
         log(event.event.toString())
-        if (busy)
+        if (!current.task.isPassive())
             return
         var dir = Task.Direction.Waiting
         try {
-            var dir = current.task.LimitStep { step(event, envirment) }
+            dir = current.task.LimitStep { step(event, envirment) }
         } catch(e: Exception) {
             dir = Task.Direction.Back
         } finally {
@@ -66,7 +67,7 @@ class WorkflowRunner(val envirment: Envirment) {
     }
 
     fun Task.LimitStep(fn: Task.() -> Task.Direction): Task.Direction {
-        log("Step start:" + current.toString())
+        log("Step start:" + current.descript())
         try {
             return executor.submit<Task.Direction> {
                 this.fn()
@@ -75,12 +76,12 @@ class WorkflowRunner(val envirment: Envirment) {
             log("Timeout step:" + this.toString())
             throw e
         } finally {
-            log("Step end:" + current.toString())
+            log("Step end:" + current.descript())
         }
     }
 
     fun Task.LimitRun(fn: Task.() -> Unit): Unit {
-        log("Run start:" + current.toString())
+        log("Run start:" + current.descript())
         try {
             busy = true
             executor.submit<Unit> {

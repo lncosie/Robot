@@ -8,10 +8,25 @@ import com.lncosie.robot.flow.Event
 /**
  * Created by lncosie on 2016/4/30.
  */
-
-class MessageSend(): PerfermAction(WechatId.Send){
+abstract open class PasssiveTask : Task {
+    override fun start(env: Envirment) {}
+    override fun end(env: Envirment){}
+    override fun isPassive()=true
+    protected fun get(event: Event, key:String, isID:Boolean=true):AccessibilityNodeInfo?{
+        val nodes=if(isID)event.service.rootInActiveWindow.findAccessibilityNodeInfosByViewId(key)
+        else event.service.rootInActiveWindow.findAccessibilityNodeInfosByText(key);
+        if(nodes.size>0)
+            return nodes.get(0)
+        return null
+    }
+    override fun toString(): String {
+        return this.javaClass.simpleName
+    }
+}
+class MessageSend(): PerfermAction(WechatId.IDChatMessageSend){
     override fun step(event: Event, env: Envirment): Task.Direction {
-        val past_edit=get(event,WechatId.ID_SendEdit,true)
+
+        val past_edit=get(event,WechatId.IDChatMessageEditor)
         if(past_edit==null)
             return Task.Direction.Waiting
         val arguments = Bundle();
@@ -22,57 +37,80 @@ class MessageSend(): PerfermAction(WechatId.Send){
     }
 }
 
-class FriendAccept():PerfermAction(WechatId.Accept){
+class FriendAccept():PerfermAction(WechatId.IDAccept,false){
 
 }
-class FriendGotoChat():PerfermAction(WechatId.NickName){
+class FromChatHistoryToChat():PerfermAction(WechatId.NickName,false){
     override fun step(event: Event, env: Envirment): Task.Direction {
         this.key=env.user
         return super.step(event, env)
     }
 }
-class PhotoGoto():PerfermAction(WechatId.Photo){
+class FromHomeToMe():PerfermAction(""){
+    override fun step(event: Event, env: Envirment): Task.Direction {
+        val home4button=event.service.rootInActiveWindow.findAccessibilityNodeInfosByViewId(WechatId.IDHome4ButtonName)
+        for(button in home4button){
+            if(button.text.toString().equals(WechatId.TextMe)){
+                return perform(button)
+            }
+        }
+        return Task.Direction.Waiting
+    }
+}
+class SaveMeId():PasssiveTask(){
+    override fun step(event: Event, env: Envirment): Task.Direction {
+        val myname=get(event,WechatId.IDMePageSelfName)
+        if(myname!=null){
+            env.wxid=myname.text.toString()
+            return Task.Direction.Forward
+        }
+        return Task.Direction.Waiting
+    }
+}
+open class GotoPage(key:String,id:Boolean=true):PerfermAction(key,id){
 
 }
-class PhotoScroll():PerfermAction(WechatId.ID_PhotoView,true,AccessibilityNodeInfo.ACTION_SCROLL_FORWARD){
+
+class ScrollWhileFind(val list:String,val end:String):PerfermAction(list,true,AccessibilityNodeInfo.ACTION_SCROLL_FORWARD){
     override fun step(event: Event, env: Envirment): Task.Direction {
-        if(get(event,WechatId.ID_PhotoEnd,true)!=null){
+        if(get(event,end)!=null){
             return Task.Direction.Forward
         }
         return super.step(event, env)
     }
 }
-open class PerfermAction(var key:String,val id:Boolean=false,val action:Int=AccessibilityNodeInfo.ACTION_CLICK): PasssiveTask(){
+
+open class PerfermAction(var key:String,val id:Boolean=true,val action:Int=AccessibilityNodeInfo.ACTION_CLICK): PasssiveTask(){
     override fun step(event: Event, env: Envirment): Task.Direction {
         return doAction(event)
     }
 
     protected fun doAction(event: Event): Task.Direction {
         var node=get(event, key, id)
-        while(node!=null){
-            val accept=when(action){
-                AccessibilityNodeInfo.ACTION_CLICK->node.isClickable
-                AccessibilityNodeInfo.ACTION_SCROLL_FORWARD->node.isScrollable
-                AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD->node.isScrollable
-                AccessibilityNodeInfo.ACTION_LONG_CLICK->node.isClickable
-                else->false
+        return perform(node)
+    }
+
+    protected fun perform(node: AccessibilityNodeInfo?): Task.Direction {
+        var node1 = node
+        while (node1 != null) {
+            val accept = when (action) {
+                AccessibilityNodeInfo.ACTION_CLICK -> node1.isClickable
+                AccessibilityNodeInfo.ACTION_SCROLL_FORWARD -> node1.isScrollable
+                AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD -> node1.isScrollable
+                AccessibilityNodeInfo.ACTION_LONG_CLICK -> node1.isClickable
+                else -> false
             }
-            if(accept)
+            if (accept)
                 break
-            node=node.parent
+            node1 = node1.parent
         }
-        if(node==null){
+        if (node1 == null) {
             return Task.Direction.Waiting
-        }else{
-            node.performAction(action)
+        } else {
+            node1.performAction(action)
             return Task.Direction.Forward
         }
     }
-    protected fun get(event: Event, key:String, id:Boolean=false):AccessibilityNodeInfo?{
-        val nodes=if(id)event.service.rootInActiveWindow.findAccessibilityNodeInfosByViewId(key)
-                    else event.service.rootInActiveWindow.findAccessibilityNodeInfosByText(key);
-        if(nodes.size>0)
-            return nodes.get(0)
-        return null
-    }
+
+
 }
