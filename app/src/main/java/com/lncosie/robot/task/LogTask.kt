@@ -5,14 +5,16 @@ import com.lncosie.robot.flow.Envirment
 /**
  * Created by lncosie on 2016/4/30.
  */
-class LogOpenUser:Task{
-    override fun start(env: Envirment): Boolean {
-        return true
+class LogOpenUser:InitiativeTask(){
+
+    override fun start(env: Envirment): Unit {
+
     }
 
 }
-class LogCloseUser:Task{
-    override fun start(env: Envirment): Boolean {
-        return true
+class LogCloseUser:InitiativeTask(){
+    override fun isPassive()=false
+    override fun start(env: Envirment): Unit {
+
     }
 }

@@ -10,7 +10,7 @@ import com.lncosie.robot.flow.Event
  */
 
 class MessageSend(): PerfermAction(WechatId.Send){
-    override fun run(event: Event, env: Envirment): Task.Direction {
+    override fun step(event: Event, env: Envirment): Task.Direction {
         val past_edit=get(event,WechatId.ID_SendEdit,true)
         if(past_edit==null)
             return Task.Direction.Waiting
@@ -18,7 +18,7 @@ class MessageSend(): PerfermAction(WechatId.Send){
         arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,env.msg);
         past_edit.performAction(AccessibilityNodeInfo.ACTION_PASTE)
         wait_moment(500)
-        return super.run(event, env)
+        return super.step(event, env)
     }
 }
 
@@ -26,24 +26,24 @@ class FriendAccept():PerfermAction(WechatId.Accept){
 
 }
 class FriendGotoChat():PerfermAction(WechatId.NickName){
-    override fun run(event: Event, env: Envirment): Task.Direction {
+    override fun step(event: Event, env: Envirment): Task.Direction {
         this.key=env.user
-        return super.run(event, env)
+        return super.step(event, env)
     }
 }
 class PhotoGoto():PerfermAction(WechatId.Photo){
 
 }
 class PhotoScroll():PerfermAction(WechatId.ID_PhotoView,true,AccessibilityNodeInfo.ACTION_SCROLL_FORWARD){
-    override fun run(event: Event, env: Envirment): Task.Direction {
+    override fun step(event: Event, env: Envirment): Task.Direction {
         if(get(event,WechatId.ID_PhotoEnd,true)!=null){
             return Task.Direction.Forward
         }
-        return super.run(event, env)
+        return super.step(event, env)
     }
 }
-open class PerfermAction(var key:String,val id:Boolean=false,val action:Int=AccessibilityNodeInfo.ACTION_CLICK): EventDriveTask(){
-    override fun run(event: Event, env: Envirment): Task.Direction {
+open class PerfermAction(var key:String,val id:Boolean=false,val action:Int=AccessibilityNodeInfo.ACTION_CLICK): PasssiveTask(){
+    override fun step(event: Event, env: Envirment): Task.Direction {
         return doAction(event)
     }
 

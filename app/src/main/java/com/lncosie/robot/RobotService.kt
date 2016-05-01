@@ -11,7 +11,7 @@ import com.lncosie.robot.flow.*
 
 class RobotService : AccessibilityService() {
 
-    val runner= FlowRunner(Envirment("user","welcome",this))
+    val runner= WorkflowRunner(Envirment("user","welcome",this))
     val workflow= WorkFlow()
     lateinit var start: Node
 

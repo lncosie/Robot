@@ -5,9 +5,10 @@ import com.lncosie.robot.flow.Envirment
 /**
  * Created by lncosie on 2016/4/30.
  */
-class DbUpload:Task{
-    override fun start(env: Envirment): Boolean {
-        return true
+class DbUpload:InitiativeTask(){
+
+    override fun start(env: Envirment): Unit {
+
     }
 
     override fun end(env: Envirment) {

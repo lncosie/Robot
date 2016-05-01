@@ -12,23 +12,24 @@ interface Task{
     enum class Direction{
         Forward,Back,Waiting
     }
-    fun start(env: Envirment):Boolean
-    fun run(event: Event, env: Envirment): Direction = Direction.Forward
+    fun start(env: Envirment): Unit
+    fun step(event: Event, env: Envirment): Direction = Direction.Forward
     fun end(env: Envirment){}
     fun timeout():Long=3000
+    fun isPassive():Boolean
     fun wait_moment(ms:Long){
         Thread.sleep(ms)
     }
 }
-abstract open class EventDriveTask: Task {
-    override fun start(env: Envirment): Boolean=false
+abstract open class PasssiveTask : Task {
+    override fun start(env: Envirment) {}
     override fun end(env: Envirment){}
-
+    override fun isPassive()=true
 
 }
-abstract open class AutoDriveTask: Task{
-    override fun run(event: Event, env: Envirment): Task.Direction = Task.Direction.Forward
+abstract open class InitiativeTask : Task{
+    override fun step(event: Event, env: Envirment): Task.Direction = Task.Direction.Forward
     override fun end(env: Envirment) {
     }
-
+    override fun isPassive()=false
 }
