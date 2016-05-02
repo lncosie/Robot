@@ -76,7 +76,8 @@ class ScrollWhileFind(val list:String,val end:String):PerfermAction(list,true,Ac
         if(get(event,end)!=null){
             return Task.Direction.Forward
         }
-        return super.step(event, env)
+        super.step(event, env)
+        return Task.Direction.Waiting
     }
 }
 

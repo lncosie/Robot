@@ -6,16 +6,20 @@ import com.lncosie.toolkit.Ptr
 /**
  * Created by lncosie on 2016/4/29.
  */
-data class Node(val task: Task, val forward: Ptr<Node>, val backward: Ptr<Node>)
+data class Node(val name:String,val task: Task, val forward: Ptr<Node>, val backward: Ptr<Node>)
 fun Node.descript():String{
     return StringBuilder().run {
-        append(this@descript.task.toString())
-        append("[OK->")
-        if(forward.notNull())
-            append(forward.value.task.toString())
-        append("   Fail->")
+        append(this@descript.name)
+        if(forward.notNull()){
+            append("[OK->")
+            append(forward.value.name)
+
+        }
         if(backward.notNull())
-            append(backward.value.task.toString())
+        {
+            append("   Fail->")
+            append(backward.value.name)
+        }
         append("]")
     }.toString()
 }
