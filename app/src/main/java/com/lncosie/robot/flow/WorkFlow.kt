@@ -56,8 +56,8 @@ class WorkFlow {
         //reset
         NodeReset.reset(Node("NodeReset",WxClose(), NodeOpenWechat, NodeFinish))
         //start
-        NodeOpenWechat.reset(Node("NodeOpenWechat",WxOpen(), NodeOpenNewFriends, NodeFinish))
-        //NodeOpenWechat.reset(Node("NodeOpenWechat",WxOpen(), NodeScrollPhoto, NodeReset))
+        //NodeOpenWechat.reset(Node("NodeOpenWechat",WxOpen(), NodeOpenNewFriends, NodeFinish))
+        NodeOpenWechat.reset(Node("NodeOpenWechat",WxOpen(), NodeScrollPhoto, NodeReset))
 
     }
 
@@ -69,7 +69,7 @@ class WorkFlow {
     }
     private fun FetchDataAndUpload() {
         NodeGotoPhoto.reset(Node("NodeGotoPhoto",GotoPage(WechatId.IDDetailPhotos), NodeScrollPhoto, nop))
-        NodeScrollPhoto.reset(Node("NodeScrollPhoto",ScrollWhileFind(WechatId.IDDetailPhotos, WechatId.IDPhotoEndline),
+        NodeScrollPhoto.reset(Node("NodeScrollPhoto",ScrollWhileFind(WechatId.IDPhotoList, WechatId.IDPhotoEndline),
                 NodeUploadDb, nop))
         //upload
         NodeUploadDb.reset(Node("NodeUploadDb",DbUpload(), NodeCloseWechat, nop))
@@ -77,8 +77,8 @@ class WorkFlow {
     private fun FinishAndFetchNew() {
         //send finish
         NodeCloseWechat.reset(Node("NodeCloseWechat",WxClose(), NodeReopenWechat, nop))
-        NodeReopenWechat.reset(Node("NodeReopenWechat",WxOpen(), NodeChatWith, nop))
-        NodeChatWith.reset(Node("NodeChatWith",FromChatHistoryToChat(), NodeAcceptFriend, nop))
+        NodeReopenWechat.reset(Node("NodeReopenWechat",WxOpen(), NodeSayFinish, nop))
+        //NodeChatWith.reset(Node("NodeChatWith",FromChatHistoryToChat(), NodeAcceptFriend, nop))
         NodeSayFinish.reset(Node("NodeSayFinish",MessageSend(), NodeReset, NodeReset))
     }
     val NodeGotoMe = Ptr<Node>()

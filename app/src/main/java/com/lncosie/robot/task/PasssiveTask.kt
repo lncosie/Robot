@@ -1,6 +1,11 @@
 package com.lncosie.robot.task
 
+import android.content.ClipData
+
+import android.content.Context
 import android.os.Bundle
+import android.os.Looper
+import android.text.ClipboardManager
 import android.view.accessibility.AccessibilityNodeInfo
 import com.lncosie.robot.flow.Envirment
 import com.lncosie.robot.flow.Event
@@ -29,8 +34,10 @@ class MessageSend(): PerfermAction(WechatId.IDChatMessageSend){
         val past_edit=get(event,WechatId.IDChatMessageEditor)
         if(past_edit==null)
             return Task.Direction.Waiting
-        val arguments = Bundle();
-        arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,env.msg);
+        Looper.prepare()
+        past_edit.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+        val clip = event.service.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager;
+        clip.setText(env.msg);
         past_edit.performAction(AccessibilityNodeInfo.ACTION_PASTE)
         wait_moment(500)
         return super.step(event, env)

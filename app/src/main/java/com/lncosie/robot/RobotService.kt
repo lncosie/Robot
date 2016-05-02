@@ -53,6 +53,8 @@ class RobotService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if(event?.eventType!=AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED)
+            return
         runner.step(Event(this, event!!))
     }
 }
