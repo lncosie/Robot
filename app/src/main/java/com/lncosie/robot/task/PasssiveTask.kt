@@ -36,9 +36,13 @@ class MessageSend(): PerfermAction(WechatId.IDChatMessageSend){
             return Task.Direction.Waiting
         Looper.prepare()
         past_edit.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+        past_edit.performAction(AccessibilityNodeInfo.FOCUS_INPUT)
+
         val clip = event.service.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager;
         clip.setText(env.msg);
         past_edit.performAction(AccessibilityNodeInfo.ACTION_PASTE)
+        past_edit.performAction(AccessibilityNodeInfo.FOCUS_INPUT)
+
         wait_moment(500)
         return super.step(event, env)
     }

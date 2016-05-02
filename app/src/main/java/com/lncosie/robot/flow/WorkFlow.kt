@@ -35,6 +35,10 @@ class WorkFlow {
         //photo
         FetchDataAndUpload()
         FinishAndFetchNew()
+        test()
+    }
+    fun test(){
+        NodeStart.reset(Node("test",MessageSend(),nop,nop))
     }
 
 
