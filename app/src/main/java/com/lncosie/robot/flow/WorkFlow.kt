@@ -2,14 +2,13 @@ package com.lncosie.robot.flow
 
 import com.lncosie.robot.task.*
 import com.lncosie.toolkit.Ptr
-
 /**
- * Created by lncosie on 2016/4/30.
+ * Created by lncosie on 2016/5/2.
  */
 class WorkFlow {
 
 
-    private val NodeGotoPhoto = Ptr<Node>()
+
 
     private val NodeStart = Ptr<Node>()
     private val NodeFinish = Ptr<Node>()
@@ -38,66 +37,65 @@ class WorkFlow {
         test()
     }
     fun test(){
-        NodeStart.reset(Node("test",MessageSend(),nop,nop))
+        //NodeStart.reset{NodeFinish.value}
     }
 
 
 
     private fun MakeStartFinishNode() {
-        val NodeOpenWechat = Ptr<Node>()
         NodeFinish.reset(Node("NodeFinish",RunFinish(), nop, nop))
-        NodeStart.reset(Node("NodeStart",Nop(), NodeOpenWechat, NodeFinish))
-        NodeOpenWechat.reset(Node("NodeOpenWechat",WxOpen(), NodeGotoMe, NodeFinish))
+        NodeStart.reset(Node("NodeStart",WxClose(), NodeOpenWechat, nop))
+        NodeOpenWechat.reset(Node("NodeOpenWechat",WxOpen(), NodeGotoMe, nop))
     }
 
     private fun ConfigServer() {
-        val NodeSaveID = Ptr<Node>()
-        NodeGotoMe.reset(Node("NodeGotoMe",FromHomeToMe(), NodeSaveID, NodeFinish))
-        NodeSaveID.reset(Node("NodeSaveID",SaveMeId(), NodeReset, NodeFinish))
+        NodeGotoMe.reset(Node("NodeGotoMe",FromHomeToMe(), NodeSaveID, nop))
+        NodeSaveID.reset(Node("NodeSaveID",SaveMeId(), NodeReset, nop))
     }
 
     private fun ResetForRun() {
         //reset
-        NodeReset.reset(Node("NodeReset",WxClose(), NodeOpenWechat, NodeFinish))
-        //start
-        //NodeOpenWechat.reset(Node("NodeOpenWechat",WxOpen(), NodeOpenNewFriends, NodeFinish))
-        NodeOpenWechat.reset(Node("NodeOpenWechat",WxOpen(), NodeScrollPhoto, NodeReset))
-
+        NodeReset.reset(Node("NodeReset",Reset(), NodeCloseWechat, NodeFinish))
+        NodeCloseWechat.reset(Node("NodeCloseWechat",WxClose(), NodeOpenNewFriends, NodeReset))
     }
 
     private fun AcceptNewFriend() {
         //accept
         NodeOpenNewFriends.reset(Node("NodeOpenNewFriends",FriendOpen(), NodeAcceptFriend, NodeReset))
-        NodeAcceptFriend.reset(Node("NodeAcceptFriend",FriendAccept(), NodeSayWelcome, NodeReset))
-        NodeSayWelcome.reset(Node("NodeSayWelcome",MessageSend(), NodeGotoPhoto, NodeReset))
+        NodeAcceptFriend.reset(Node("NodeAcceptFriend",FriendAccept(), NodeDetailGotoChat, NodeReset))
+        NodeDetailGotoChat.reset(Node("NodeGotoChat", DetailGotoChat_SaveUser(), NodeSayWelcome, NodeReset))
+        NodeSayWelcome.reset(Node("NodeSayWelcome",MessageSend(), NodeGotoDetail, NodeReset))
     }
     private fun FetchDataAndUpload() {
-        NodeGotoPhoto.reset(Node("NodeGotoPhoto",GotoPage(WechatId.IDDetailPhotos), NodeScrollPhoto, nop))
+        NodeGotoDetail.reset(Node("NodeGotoDetail",FromChatToDetail(), NodeGotoPhoto, NodeReset))
+        NodeGotoPhoto.reset(Node("NodeGotoPhoto",DetailGotoPhoto(), NodeScrollPhoto, NodeReset))
         NodeScrollPhoto.reset(Node("NodeScrollPhoto",ScrollWhileFind(WechatId.IDPhotoList, WechatId.IDPhotoEndline),
-                NodeUploadDb, nop))
+                NodeUploadDb, NodeReset))
         //upload
-        NodeUploadDb.reset(Node("NodeUploadDb",DbUpload(), NodeCloseWechat, nop))
+        NodeUploadDb.reset(Node("NodeUploadDb",DbUpload(), NodeGotoChatWithUser, NodeReset))
     }
     private fun FinishAndFetchNew() {
-        //send finish
-        NodeCloseWechat.reset(Node("NodeCloseWechat",WxClose(), NodeReopenWechat, nop))
-        NodeReopenWechat.reset(Node("NodeReopenWechat",WxOpen(), NodeSayFinish, nop))
-        //NodeChatWith.reset(Node("NodeChatWith",FromChatHistoryToChat(), NodeAcceptFriend, nop))
+
+        NodeGotoChatWithUser.reset(Node("NodeGotoChatWithUser",FromChatHistoryToChat(), NodeSayFinish, NodeReset))
         NodeSayFinish.reset(Node("NodeSayFinish",MessageSend(), NodeReset, NodeReset))
     }
-    val NodeGotoMe = Ptr<Node>()
     val NodeOpenWechat = Ptr<Node>()
-    val NodeReopenWechat = Ptr<Node>()
-    val NodeCloseWechat = Ptr<Node>()
+    val NodeGotoMe = Ptr<Node>()
+    val NodeSaveID=Ptr<Node>()
     val NodeReset = Ptr<Node>()
+    val NodeCloseWechat = Ptr<Node>()
+    val NodeReOpenWetchat = Ptr<Node>()
+
     val NodeOpenNewFriends = Ptr<Node>()
     val NodeAcceptFriend = Ptr<Node>()
+    val NodeDetailGotoChat = Ptr<Node>()
     val NodeSayWelcome = Ptr<Node>()
+    val NodeGotoDetail = Ptr<Node>()
+    val NodeGotoPhoto = Ptr<Node>()
     val NodeScrollPhoto = Ptr<Node>()
     val NodeUploadDb = Ptr<Node>()
-    val NodeChatWith = Ptr<Node>()
+    val NodeGotoChatWithUser = Ptr<Node>()
     val NodeSayFinish = Ptr<Node>()
-
     val nop = Ptr<Node>()
 
 }

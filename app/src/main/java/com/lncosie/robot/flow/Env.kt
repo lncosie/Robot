@@ -5,10 +5,14 @@ import android.view.accessibility.AccessibilityEvent
 import com.lncosie.wxrobot.RobotService
 
 /**
- * Created by lncosie on 2016/4/29.
+ * Created by lncosie on 2016/5/2.
  */
 data class Event(val service: RobotService, val event: AccessibilityEvent)
-data class Envirment(var user:String,
-                     var msg:String,
-                     var wxid:String,
-                     val context: Context)
+data class Envirment(
+        var wxid:String,
+        var msg:String,
+        var usernick:String,
+        var userid:String,
+        var upcode:String,
+        var upload:String,
+        val context: Context)

@@ -9,14 +9,16 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 /**
- * Created by lncosie on 2016/4/29.
+ * Created by lncosie on 2016/5/2.
  */
 class WorkflowRunner(val envirment: Envirment) {
     private val executor = Executors.newCachedThreadPool()
     private @Volatile lateinit var current: Node
     private @Volatile var busy = true
     private var timeTaskStart=0L
+    private var mainLoop:Future<Unit>?=null
     fun start(start: Node) {
+        mainLoop?.cancel(true)
         current = start
         timeTaskStart=System.currentTimeMillis()
         switchTask(Task.Direction.Forward)
@@ -24,9 +26,9 @@ class WorkflowRunner(val envirment: Envirment) {
 
     fun stop(finish: Node) {
         busy = true
-        current=finish
-        taskStart()
-        taskEnd()
+        mainLoop?.cancel(true)
+        mainLoop=null
+
     }
 
     private fun taskStart() {
@@ -45,16 +47,22 @@ class WorkflowRunner(val envirment: Envirment) {
     private fun switchTask(dir: Task.Direction) {
         if (dir == Task.Direction.Waiting)
             return
-        executor.submit {
-            do {
-                taskEnd()
-                log("Switch Node:${if (dir == Task.Direction.Forward) "Forward" else "Backward"}")
-                current = if (dir == Task.Direction.Forward) current.forward.value else current.backward.value
-                taskStart()
-                if(current.task.isPassive())
-                    break
-            } while (true)
-            busy=false
+        mainLoop=executor.submit<Unit> {
+            try{
+                do {
+                    taskEnd()
+                    log("Switch Node:${if (dir == Task.Direction.Forward) "Forward" else "Backward"}")
+                    current = if (dir == Task.Direction.Forward) current.forward.value else current.backward.value
+                    taskStart()
+                    if(current.task.isPassive()){
+                        break
+                    }
+                } while (true)
+
+            }finally{
+                busy=false
+            }
+
         }
     }
 
@@ -64,9 +72,17 @@ class WorkflowRunner(val envirment: Envirment) {
             return
         var dir = Task.Direction.Waiting
         try {
-            dir = current.task.LimitStep { step(event, envirment) }
-        } finally {
+            dir = current.task.LimitStep {
+                step(event, envirment)
+            }
             switchTask(dir)
+        }catch(stop:NullPointerException){
+            busy=true
+        }catch(e:Exception){
+            dir= Task.Direction.Back
+            switchTask(dir)
+        } finally {
+
         }
     }
 
@@ -77,20 +93,30 @@ class WorkflowRunner(val envirment: Envirment) {
             work=executor.submit<Task.Direction> {
                 try{
                     this.fn()
-                }catch(e:Exception){
+                }
+                catch(e:Exception){
+                    e.printStackTrace()
+                    log(e.toString())
                     return@submit Task.Direction.Back
                 }
+                finally{
+
+                }
+
             }
             return work.get(this.timeout()+timeTaskStart-System.currentTimeMillis(), TimeUnit.MILLISECONDS)
         } catch(e: TimeoutException) {
             loge("Step Timeout:" + current.descript())
             work?.cancel(true)
             return Task.Direction.Back
-        } catch(e:Exception){
-            loge("Step Error:" + e.message)
+        }
+        catch(e:Exception){
+            e.printStackTrace()
+            loge("Step Error:" + e.toString())
             work?.cancel(true)
             return Task.Direction.Back
-        }finally {
+        }
+        finally {
             log("Step End:" + current.descript())
         }
     }
@@ -110,10 +136,13 @@ class WorkflowRunner(val envirment: Envirment) {
         } catch(e: TimeoutException) {
             loge("Run Timeout:" + current.descript())
             work?.cancel(true)
-        } catch(e:Exception){
-            loge("Run Error:" + e.message)
+        }
+        catch(e:Exception){
+            e.printStackTrace()
+            loge("Run Error:" + e.toString())
             work?.cancel(true)
-        }finally {
+        }
+        finally {
             log("Run End:" + current.descript())
             busy = false
         }

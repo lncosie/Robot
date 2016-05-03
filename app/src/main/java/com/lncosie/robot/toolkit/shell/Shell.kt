@@ -4,12 +4,13 @@ import java.io.BufferedOutputStream
 import java.io.BufferedWriter
 
 /**
- * Created by lncosie on 2016/4/30.
+ * Created by lncosie on 2016/5/2.
  */
 object Shell{
     var process:Process?=null
     var cs:BufferedOutputStream?=null
     fun post(command:String){
+        open()
         cs?.write((command+"\n").toByteArray())
         cs?.flush()
     }

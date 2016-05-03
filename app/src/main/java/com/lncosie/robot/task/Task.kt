@@ -5,7 +5,7 @@ import com.lncosie.robot.flow.Envirment
 import com.lncosie.robot.flow.Event
 
 /**
- * Created by lncosie on 2016/4/29.
+ * Created by lncosie on 2016/5/2.
  */
 
 interface Task{
@@ -17,7 +17,7 @@ interface Task{
     fun end(env: Envirment){}
     fun timeout():Long=600000
     fun isPassive():Boolean
-    fun wait_moment(ms:Long){
+    fun wait_moment(ms:Long): Unit {
         Thread.sleep(ms)
     }
 

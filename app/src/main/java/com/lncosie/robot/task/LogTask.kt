@@ -3,7 +3,7 @@ package com.lncosie.robot.task
 import com.lncosie.robot.flow.Envirment
 
 /**
- * Created by lncosie on 2016/4/30.
+ * Created by lncosie on 2016/5/2.
  */
 class LogOpenUser:InitiativeTask(){
 

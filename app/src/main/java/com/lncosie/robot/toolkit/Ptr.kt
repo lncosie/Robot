@@ -1,7 +1,7 @@
 package com.lncosie.toolkit
 
 /**
- * Created by lncosie on 2016/4/30.
+ * Created by lncosie on 2016/5/2.
  */
 class Ptr<T>(var ptr:(()-> T)?=null) {
     constructor(other: Ptr<T>):this({other.value}){

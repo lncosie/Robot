@@ -1,14 +1,17 @@
 digraph{
-	start->get_self->read[label="ok"]
 
-	read->fetch[label="fail"]
-	read->goto_user[label="ok"]
-	goto_user->welcome[label="ok"]
-	open_new->delete_used->accept->welcome->viewphoto->scroll->db->closewx->openwx->sendfinish->fetch[label="ok"]
 
-	reset->fetch->open_new[label="ok"]
-	viewphoto->reset[label="fail"]
-	sendfinish->reset[label="fail"]	
-	
+NodeStart->NodeOpenWetchat->
+NodeGotoMe->NodeSaveID[lable=ok]
+
+NodeSaveID->NodeReset
+NodeReset->NodeCloseWechat->NodeReOpenWetchat->
+NodeOpenNewFriends->NodeAcceptFriend
+
+NodeAcceptFriend->NodeGotoChat->NodeSayWelcome->NodGotoDetail->NodeGotoPhoto->NodeScrollPhoto
+
+
+NodeScrollPhoto->NodeUploadDb
+NodeUploadDb->NodeGotoChatWithUser->NodeSayFinish->NodeReset
 
 }
