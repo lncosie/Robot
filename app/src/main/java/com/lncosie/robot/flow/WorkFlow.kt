@@ -44,40 +44,43 @@ class WorkFlow {
 
     private fun MakeStartFinishNode() {
         NodeFinish.reset(Node("NodeFinish",RunFinish(), nop, nop))
-        NodeStart.reset(Node("NodeStart",WxClose(), NodeOpenWechat, nop))
-        NodeOpenWechat.reset(Node("NodeOpenWechat",WxOpen(), NodeGotoMe, nop))
+        NodeStart.reset(Node("开始",WxClose(), NodeOpenWechat, nop))
+        NodeOpenWechat.reset(Node("打开微信",WxOpen(), NodeGotoMe, nop))
     }
 
     private fun ConfigServer() {
-        NodeGotoMe.reset(Node("NodeGotoMe",FromHomeToMe(), NodeSaveID, nop))
-        NodeSaveID.reset(Node("NodeSaveID",SaveMeId(), NodeReset, nop))
+        NodeGotoMe.reset(Node("打开Me",FromHomeToMe(), NodeSaveID, nop))
+        NodeSaveID.reset(Node("获取MeID",SaveMeId(), NodeReset, nop))
     }
 
     private fun ResetForRun() {
         //reset
-        NodeReset.reset(Node("NodeReset",Reset(), NodeCloseWechat, NodeFinish))
-        NodeCloseWechat.reset(Node("NodeCloseWechat",WxClose(), NodeOpenNewFriends, NodeReset))
+        NodeReset.reset(Node("重置",Reset(), NodeCloseWechat, NodeFinish))
+        NodeCloseWechat.reset(Node("关闭微信",WxClose(), NodeOpenNewFriends, NodeReset))
     }
 
     private fun AcceptNewFriend() {
         //accept
-        NodeOpenNewFriends.reset(Node("NodeOpenNewFriends",FriendOpen(), NodeAcceptFriend, NodeReset))
-        NodeAcceptFriend.reset(Node("NodeAcceptFriend",FriendAccept(), NodeDetailGotoChat, NodeReset))
-        NodeDetailGotoChat.reset(Node("NodeGotoChat", DetailGotoChat_SaveUser(), NodeSayWelcome, NodeReset))
-        NodeSayWelcome.reset(Node("NodeSayWelcome",MessageSend(), NodeGotoDetail, NodeReset))
+        NodeOpenNewFriends.reset(Node("等待新朋友",FriendOpen(), NodeAcceptFriend, NodeReset))
+        NodeAcceptFriend.reset(Node("等待新朋友",FriendAccept(), NodeDetailGotoChat, NodeReset))
+        NodeDetailGotoChat.reset(Node("准备发送消息", DetailGotoChat(), NodeSayWelcome, NodeReset))
+        NodeSayWelcome.reset(Node("发送Welcome", MessageSendWelcome(), NodeGotoDetail, NodeReset))
     }
     private fun FetchDataAndUpload() {
-        NodeGotoDetail.reset(Node("NodeGotoDetail",FromChatToDetail(), NodeGotoPhoto, NodeReset))
-        NodeGotoPhoto.reset(Node("NodeGotoPhoto",DetailGotoPhoto(), NodeScrollPhoto, NodeReset))
-        NodeScrollPhoto.reset(Node("NodeScrollPhoto",ScrollWhileFind(WechatId.IDPhotoList, WechatId.IDPhotoEndline),
-                NodeUploadDb, NodeReset))
+        NodeGotoDetail.reset(Node("打开详情页",FromChatToDetail(), NodeGotoPhoto, NodeReset))
+        NodeGotoPhoto.reset(Node("打开相册", DetailGotoPhoto_SaveUser(), NodeScrollPhoto, NodeReset))
+        NodeScrollPhoto.reset(Node("查看相册",ScrollWhileFind(WechatId.IDPhotoList, WechatId.IDPhotoEndline),
+                NodeCloseAg, NodeReset))
+        //close
+        NodeCloseAg.reset(Node("关闭微信",WxClose(), NodeUploadDb, NodeReset))
         //upload
-        NodeUploadDb.reset(Node("NodeUploadDb",DbUpload(), NodeGotoChatWithUser, NodeReset))
+        NodeUploadDb.reset(Node("上传数据",DbUpload(), NodeWaitMakeBook, NodeReset))
+        NodeWaitMakeBook.reset(Node("等待作书",WaitMakeBook(), NodeOpenAg, NodeReset))
     }
     private fun FinishAndFetchNew() {
-
-        NodeGotoChatWithUser.reset(Node("NodeGotoChatWithUser",FromChatHistoryToChat(), NodeSayFinish, NodeReset))
-        NodeSayFinish.reset(Node("NodeSayFinish",MessageSend(), NodeReset, NodeReset))
+        NodeOpenAg.reset(Node("打开微信",WxOpen(), NodeGotoChatWithUser, NodeReset))
+        NodeGotoChatWithUser.reset(Node("准备发送完成信息",FromChatHistoryToChat(), NodeSayFinish, NodeReset))
+        NodeSayFinish.reset(Node("发送做书地址", MessageSendFinish(), NodeReset, NodeReset))
     }
     val NodeOpenWechat = Ptr<Node>()
     val NodeGotoMe = Ptr<Node>()
@@ -94,8 +97,13 @@ class WorkFlow {
     val NodeGotoPhoto = Ptr<Node>()
     val NodeScrollPhoto = Ptr<Node>()
     val NodeUploadDb = Ptr<Node>()
+    val NodeWaitMakeBook=Ptr<Node>()
     val NodeGotoChatWithUser = Ptr<Node>()
     val NodeSayFinish = Ptr<Node>()
     val nop = Ptr<Node>()
+
+    val NodeCloseAg = Ptr<Node>()
+    val NodeOpenAg = Ptr<Node>()
+
 
 }

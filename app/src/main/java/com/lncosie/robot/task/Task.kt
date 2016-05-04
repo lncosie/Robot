@@ -15,7 +15,7 @@ interface Task{
     fun start(env: Envirment): Unit
     fun step(event: Event, env: Envirment): Direction = Direction.Forward
     fun end(env: Envirment){}
-    fun timeout():Long=600000
+    fun timeout():Long=5400000L
     fun isPassive():Boolean
     fun wait_moment(ms:Long): Unit {
         Thread.sleep(ms)

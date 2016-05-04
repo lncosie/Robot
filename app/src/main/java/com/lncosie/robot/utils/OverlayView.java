@@ -69,16 +69,16 @@ public class OverlayView extends RelativeLayout implements SurfaceHolder.Callbac
         Paint p = new Paint();
         p.setAntiAlias(true);
         p.setColor(Color.YELLOW);
-        p.setTextSize(24);
+        p.setTextSize(20);
 
         Canvas canvas = holder.lockCanvas();
         if (canvas == null) {
             return;
         }
         canvas.drawColor(Color.BLUE);
-        canvas.drawText(text, 0, 30, p);
+        canvas.drawText(text, 10, 30, p);
         if(version!=null)
-            canvas.drawText(version, canvas.getWidth()-100,30,p);
+            canvas.drawText(version, 10,60,p);
         holder.unlockCanvasAndPost(canvas);
     }
 }

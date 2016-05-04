@@ -11,9 +11,7 @@ import java.util.Timer;
  */
 public class HeartBeat extends Thread {
     private int mHeartBeatTime = 10;
-    private Timer mTimer = new Timer();
     private boolean isAlive = true;
-
     public void stop_beat(){
         isAlive=false;
     }
@@ -23,14 +21,12 @@ public class HeartBeat extends Thread {
         //Log.i("thread time", "mywxId3: " + GlobalData.MY_WX_ID);
         while (isAlive) {
             //Log.i("thread time", "mywxId3: " + GlobalData.MY_WX_ID);
-            //mHeartBeatTime = HttpUtil.heartBeatGet(Config.MY_WX_ID);
-            //   mHeartBeatTime = 2;
+            mHeartBeatTime = HttpUtil.heartBeatGet(Config.INSTANCE.getWxid());
+            mHeartBeatTime = 2;
             //Log.i("thread time", "mywxId: " + GlobalData.MY_WX_ID);
             try {
                 sleep(mHeartBeatTime * 1000);
             } catch (InterruptedException e) {
-                //e.printStackTrace();
-
             }
         }
 

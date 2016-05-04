@@ -29,7 +29,7 @@ class WxOpen : InitiativeTask(){
 class WxClose : InitiativeTask(){
     override fun start(env: Envirment): Unit {
         Shell.post("am force-stop "+WechatId.WechatApp)
-        //Shell.post("input keyevent 3");
+        Shell.post("input keyevent 3");
         wait_moment(3000)
     }
 }
@@ -42,9 +42,11 @@ class Reset:InitiativeTask(){
 class FriendOpen: InitiativeTask(){
     override fun start(env: Envirment): Unit {
         Shell.post("am start "+WechatId.WechatApp+WechatId.WechatNewFriend)
-        wait_moment(2000)
+        wait_moment(1000)
     }
 }
+
+
 class RunFinish : InitiativeTask(){
     override fun start(env: Envirment): Unit {
 

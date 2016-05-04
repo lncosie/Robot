@@ -4,6 +4,7 @@ import android.app.Application;
 import android.os.StrictMode;
 
 import com.lncosie.robot.log.Orm;
+import com.lncosie.toolkit.shell.Shell;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -20,6 +21,7 @@ public class App extends Application {
         StrictMode.setThreadPolicy(policy);
         SQLiteDatabase.loadLibs(this);
         Orm.OrmInit(this);
+        Shell.INSTANCE.open();
 
     }
 

@@ -1,150 +1,91 @@
 package com.lncosie.robot.flow
 
 import com.lncosie.robot.task.Task
-import com.lncosie.toolkit.log
-import com.lncosie.toolkit.loge
+import com.lncosie.toolkit.Logger
+
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.concurrent.thread
 
 /**
  * Created by lncosie on 2016/5/2.
  */
 class WorkflowRunner(val envirment: Envirment) {
     private val executor = Executors.newCachedThreadPool()
-    private @Volatile lateinit var current: Node
-    private @Volatile var busy = true
-    private var timeTaskStart=0L
-    private var mainLoop:Future<Unit>?=null
+    private @Volatile var current: Node? = null
+    private @Volatile var dir: Task.Direction = Task.Direction.Forward
+    private @Volatile var stop_rcv=true
+    private val stepEnded = Object()
+
+
     fun start(start: Node) {
-        mainLoop?.cancel(true)
-        current = start
-        timeTaskStart=System.currentTimeMillis()
-        switchTask(Task.Direction.Forward)
-    }
-
-    fun stop(finish: Node) {
-        busy = true
-        mainLoop?.cancel(true)
-        mainLoop=null
-
-    }
-
-    private fun taskStart() {
-        timeTaskStart=System.currentTimeMillis()
-        current.task.LimitRun {
-            start(envirment)
+        thread {
+            run(start)
         }
     }
 
-    private fun taskEnd() {
-        current.task.LimitRun {
-            end(envirment)
-        }
-    }
-
-    private fun switchTask(dir: Task.Direction) {
-        if (dir == Task.Direction.Waiting)
-            return
-        mainLoop=executor.submit<Unit> {
-            try{
-                do {
-                    taskEnd()
-                    log("Switch Node:${if (dir == Task.Direction.Forward) "Forward" else "Backward"}")
-                    current = if (dir == Task.Direction.Forward) current.forward.value else current.backward.value
-                    taskStart()
-                    if(current.task.isPassive()){
-                        break
-                    }
-                } while (true)
-
-            }finally{
-                busy=false
-            }
-
-        }
+    fun stop(end: Node) {
+        current = null
     }
 
     fun step(event: Event) {
-        log(event.event.toString())
-        if (busy||!current.task.isPassive())
+        if(stop_rcv)
             return
-        var dir = Task.Direction.Waiting
-        try {
-            dir = current.task.LimitStep {
-                step(event, envirment)
+        if (current != null) {
+            if (current!!.task.isPassive()) {
+                Logger.log("Step:"+envirment.usernick + current!!.descript())
+                dir = current!!.task.step(event, envirment)
+                Logger.log("Step:"+envirment.usernick + current!!.descript())
+                if (dir != Task.Direction.Waiting) {
+                    stop_rcv=true
+                    synchronized(stepEnded) {
+                            stepEnded.notify()
+                    }
+                }
             }
-            switchTask(dir)
-        }catch(stop:NullPointerException){
-            busy=true
-        }catch(e:Exception){
-            dir= Task.Direction.Back
-            switchTask(dir)
-        } finally {
-
         }
     }
 
-    fun Task.LimitStep(fn: Task.() -> Task.Direction): Task.Direction {
-        log("Step start:" + current.descript())
-        var work:Future<Task.Direction>?=null
-        try {
-            work=executor.submit<Task.Direction> {
-                try{
-                    this.fn()
-                }
-                catch(e:Exception){
-                    e.printStackTrace()
-                    log(e.toString())
-                    return@submit Task.Direction.Back
-                }
-                finally{
+    fun run(start: Node) {
+        current = start
+        var worker: Future<Unit>? = null
 
-                }
-
+        while (true) {
+            if (current == null) {
+                return
             }
-            return work.get(this.timeout()+timeTaskStart-System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-        } catch(e: TimeoutException) {
-            loge("Step Timeout:" + current.descript())
-            work?.cancel(true)
-            return Task.Direction.Back
-        }
-        catch(e:Exception){
-            e.printStackTrace()
-            loge("Step Error:" + e.toString())
-            work?.cancel(true)
-            return Task.Direction.Back
-        }
-        finally {
-            log("Step End:" + current.descript())
-        }
-    }
-
-    fun Task.LimitRun(fn: Task.() -> Unit): Unit {
-        log("Run start:" + current.descript())
-        var work:Future<Unit>?=null
-        try {
-            busy = true
-            work=executor.submit<Unit> {
-                try{
-                    this.fn()
-                }catch(e:Exception){
+            try {
+                worker = executor.submit<Unit> {
+                    Logger.log("Runs:"+envirment.usernick + current!!.descript())
+                    current!!.task.start(envirment)
+                    if (current!!.task.isPassive()) {
+                        dir = Task.Direction.Waiting
+                        stop_rcv=false
+                        synchronized(stepEnded) {
+                           stepEnded.wait()
+                        }
+                    }else{
+                        dir = Task.Direction.Forward
+                    }
+                    current!!.task.end(envirment)
+                    Logger.log("Runs:"+envirment.usernick + current!!.descript())
                 }
+                worker.get(current!!.task.timeout(), TimeUnit.MILLISECONDS)
+                Logger.log("Switch:" + dir.toString())
+
+                when (dir) {
+                    Task.Direction.Forward -> current = current!!.forward.value
+                    Task.Direction.Back -> current = current!!.backward.value
+                }
+
+            } catch(time: TimeoutException) {
+                current = current!!.backward.value
+            } catch(e: Exception) {
+                current = current!!.backward.value
+            } finally {
             }
-            work.get(this.timeout()+timeTaskStart-System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-        } catch(e: TimeoutException) {
-            loge("Run Timeout:" + current.descript())
-            work?.cancel(true)
-        }
-        catch(e:Exception){
-            e.printStackTrace()
-            loge("Run Error:" + e.toString())
-            work?.cancel(true)
-        }
-        finally {
-            log("Run End:" + current.descript())
-            busy = false
         }
     }
 }

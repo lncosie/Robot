@@ -9,12 +9,12 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
-
+    android:gravity="center"
     tools:context="com.lncosie.wxrobot.ActivitySetting">
     <Button
         android:id="@+id/sc"
         android:onClick="sc"
-        android:text="Access"
+        android:text="打开授权"
         android:layout_margin="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -23,7 +23,7 @@
     <Button
         android:id="@+id/stop"
         android:onClick="stop"
-        android:text="Stop"
+        android:text="停止服务"
         android:layout_margin="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -32,18 +32,19 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_margin="8dp"
+
         android:layout_height="wrap_content">
         <Button
             android:id="@+id/start_auto"
             android:onClick="start_auto"
-            android:text="StartAuto"
+            android:text="自动开始"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"/>
         <Button
             android:id="@+id/start_man"
             android:onClick="start_man"
-            android:text="StartByHand"
+            android:text="从详情页进入"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"/>

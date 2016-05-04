@@ -10,6 +10,7 @@ import android.provider.Settings
 import android.view.View
 import android.view.WindowManager
 import com.lncosie.robot.R
+import com.lncosie.robot.utils.HeartBeat
 import com.lncosie.robot.utils.OverlayView
 import com.lncosie.toolkit.shell.Shell
 
@@ -23,13 +24,13 @@ class ActivitySetting : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setting)
-
     }
     public fun stop(v: View) {
         send("stop",true)
     }
     public fun start_auto(v: View) {
         send("auto",true)
+
     }
     public fun start_man(v: View) {
         send("auto",false)

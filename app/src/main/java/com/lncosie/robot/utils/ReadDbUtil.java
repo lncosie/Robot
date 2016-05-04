@@ -4,11 +4,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Base64;
+import android.util.Log;
+
 import com.alibaba.fastjson.JSON;
 
 import com.lncosie.robot.bean.SnsItem;
 import com.lncosie.robot.flow.Envirment;
-import com.lncosie.toolkit.LogKt;
+import com.lncosie.toolkit.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,14 +37,14 @@ public class ReadDbUtil {
 
         File file = new File(dbFilePath);
         if (!file.exists()) {
-            LogKt.loge("无法打开数据库");
+            Logger.INSTANCE.loge("无法打开数据库");
             return false;
         }
 
         List<String> ids = EncryptedDbHelper.getUsernameByNickName(state.getUsernick());
 
         if (ids == null || ids.size() == 0) {
-            LogKt.loge("无法打开数据库");
+            Logger.INSTANCE.loge("无法打开数据库");
             return false;
         }
 
@@ -50,7 +52,7 @@ public class ReadDbUtil {
 
         state.setUserid(wxId);
         SQLiteDatabase snsDb = SQLiteDatabase.openOrCreateDatabase(file, null);
-        LogKt.loge("用来查的微信号是" + wxId);
+        Logger.INSTANCE.loge("用来查的微信号是" + wxId);
         Cursor cur = snsDb.rawQuery("select userName, content, type, head, createTime, stringSeq, attrBuf from snsInfo where userName='" + wxId + "' order by createTime desc;", null);
         List<SnsItem> snsItems = new ArrayList<SnsItem>();
 
@@ -68,7 +70,7 @@ public class ReadDbUtil {
         }
 
         for (SnsItem thisItem : snsItems) {
-            LogKt.log("name " + thisItem.wxid + " time " + thisItem.createTime);
+            Logger.INSTANCE.log("name " + thisItem.wxid + " time " + thisItem.createTime);
         }
         cur.close();
         snsDb.close();

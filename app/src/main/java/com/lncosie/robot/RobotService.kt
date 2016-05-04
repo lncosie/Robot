@@ -7,23 +7,29 @@ import android.graphics.PixelFormat
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import com.lncosie.robot.flow.*
+import com.lncosie.robot.utils.HeartBeat
 import com.lncosie.robot.utils.OverlayView
+import com.lncosie.toolkit.Logger
 
 /**
  * Created by lncosie on 2016/5/2.
  */
 
 class RobotService : AccessibilityService() {
-    var overlay: OverlayView?=null
+
 
     val runner= WorkflowRunner(Envirment("","","","","","",this))
     val workflow= WorkFlow()
     lateinit var start: Node
 
+    val heatbeat= HeartBeat()
+
     override fun onCreate() {
         super.onCreate()
+        showOverlay()
         workflow.make()
-        //showOverlay()
+        heatbeat.start()
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -52,7 +58,8 @@ class RobotService : AccessibilityService() {
     override fun onDestroy() {
         super.onDestroy()
         stop()
-        //hideOverlay()
+        heatbeat.stop_beat()
+        hideOverlay()
     }
 
     override fun onInterrupt() {
@@ -70,17 +77,17 @@ class RobotService : AccessibilityService() {
     }
     private fun hideOverlay() {
         val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        wm.removeView(overlay)
-        overlay = null
+        wm.removeView(Logger.overlay)
+        Logger.overlay = null
     }
 
     private fun showOverlay() {
-        overlay = OverlayView(applicationContext)
+        Logger.overlay = OverlayView(applicationContext)
         val params = WindowManager.LayoutParams(WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 PixelFormat.TRANSPARENT)
         params.title = "RobotWechat"
         val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        wm.addView(overlay, params)
+        wm.addView(Logger.overlay, params)
     }
 }

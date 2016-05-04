@@ -5,6 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.lncosie.robot.books.Failed;
+import com.lncosie.robot.books.FetchList;
+import com.lncosie.robot.books.Robot;
+import com.lncosie.robot.books.SuccessList;
+import com.lncosie.robot.books.TodoList;
+
 import java.lang.reflect.Field;
 import java.util.Iterator;
 

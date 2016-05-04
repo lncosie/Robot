@@ -10,7 +10,7 @@ import com.lncosie.robot.flow.Event
  */
 object WechatId{
 
-    final val welcome="Welcome"
+    final val welcome="欢迎使用"
     final val NickName="must set to NickName of user at runtime"
 
 
@@ -52,6 +52,7 @@ object WechatId{
     //photopage
     final val IDPhotoList="com.tencent.mm:id/bsn"
     final val IDPhotoEndline="com.tencent.mm:id/ayk"
+    final val IDPhotoEndline0="非朋友最多显示十张照片"
     //friend list page
     final val IDFriendListNickname="com.tencent.mm:id/b5"
     final val IDFriendListNewFriends="com.tencent.mm:id/kt"

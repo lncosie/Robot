@@ -5,4 +5,5 @@ package com.lncosie.robot.Config
  */
 object Config{
     var url:String="http://book.indatou.com/"
+    var wxid:String=""
 }
