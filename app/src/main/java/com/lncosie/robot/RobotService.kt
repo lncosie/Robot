@@ -18,7 +18,7 @@ import com.lncosie.toolkit.Logger
 class RobotService : AccessibilityService() {
 
 
-    val runner= WorkflowRunner(Envirment("","","","","","",this))
+    val runner= WorkflowRunner(Envirment("","","","","","",null,this))
     val workflow= WorkFlow()
     lateinit var start: Node
 
@@ -44,7 +44,7 @@ class RobotService : AccessibilityService() {
         return super.onStartCommand(intent, flags, startId)
     }
     private fun stop(){
-        runner.stop(workflow.finish())
+        runner.stop()
     }
     private fun start(auto: Boolean) {
         //runner.stop(workflow.finish())
@@ -63,7 +63,7 @@ class RobotService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
-        runner.stop(workflow.finish())
+        runner.stop()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {

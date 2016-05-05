@@ -1,17 +1,18 @@
 digraph{
 
-
-NodeStart->NodeOpenWetchat->
-NodeGotoMe->NodeSaveID[lable=ok]
-
-NodeSaveID->NodeReset
-NodeReset->NodeCloseWechat->NodeReOpenWetchat->
-NodeOpenNewFriends->NodeAcceptFriend
-
-NodeAcceptFriend->NodeGotoChat->NodeSayWelcome->NodGotoDetail->NodeGotoPhoto->NodeScrollPhoto
+Start->Reset
 
 
-NodeScrollPhoto->NodeUploadDb
-NodeUploadDb->NodeGotoChatWithUser->NodeSayFinish->NodeReset
 
+
+
+GoDetailOfView->ViewPhoto->Scroll->UploadDb->Reset[label="Yes"]
+
+Reset->CheckFinished
+
+MakebookFinished->GoDetailOfSend->SendF0->Reset[label="Yes"]
+MakebookFinished->GetFailed[label="No"]
+GetFailed->GoDetailOfSend2->SendWelcome[label="Yes"]
+GetFailed->AcceptNew[label="No"]
+AcceptNew->SendWelcome->GoDetailOfView[label="Yes"]
 }

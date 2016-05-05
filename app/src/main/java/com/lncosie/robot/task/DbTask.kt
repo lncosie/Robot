@@ -3,7 +3,6 @@ package com.lncosie.robot.task
 import android.text.TextUtils
 import com.lncosie.robot.bean.UploadRsps
 import com.lncosie.robot.flow.Envirment
-import com.lncosie.robot.flow.Event
 import com.lncosie.robot.utils.HttpUtil
 import com.lncosie.robot.utils.ReadDbUtil
 import com.lncosie.toolkit.Logger
@@ -12,7 +11,7 @@ import com.lncosie.toolkit.Logger
 /**
  * Created by lncosie on 2016/5/2.
  */
-class DbUpload : InitiativeTask() {
+class DbUpload : TaskInitiative() {
 
     override fun start(env: Envirment): Unit {
         try {
@@ -41,7 +40,8 @@ class DbUpload : InitiativeTask() {
 
     }
 }
-class WaitMakeBook :InitiativeTask(){
+
+class WaitMakeBook : TaskInitiative() {
     override fun start(env: Envirment) {
         for (i in 0..1499) {
             val loopRsps = HttpUtil.loopMsg(env.wxid, env.userid, env.upcode)

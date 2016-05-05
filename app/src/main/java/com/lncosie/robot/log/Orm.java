@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.lncosie.robot.books.Failed;
 import com.lncosie.robot.books.FetchList;
+import com.lncosie.robot.books.MakebookList;
 import com.lncosie.robot.books.Robot;
 import com.lncosie.robot.books.SuccessList;
 import com.lncosie.robot.books.TodoList;
@@ -26,6 +27,7 @@ public class Orm {
                 Failed.class,
                 FetchList.class,
                 SuccessList.class,
+                MakebookList.class,
                 Robot.class
         };
         for (Class<?> cls : orm) {

@@ -7,9 +7,9 @@ import com.lncosie.robot.log.TimeNow;
 /**
  * Created by Administrator on 2016/4/21.
  */
-@Table("SuccessList")
-public class SuccessList {
-    public SuccessList() {
+@Table("MakebookList")
+public class MakebookList {
+    public MakebookList() {
         time = TimeNow.now();
     }
 
@@ -17,4 +17,5 @@ public class SuccessList {
     public Long id;
     public String user;
     public String time;
+    public String uri;
 }

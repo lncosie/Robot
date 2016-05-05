@@ -1,10 +1,5 @@
 package com.lncosie.robot.task
 
-import android.os.Bundle
-import android.view.accessibility.AccessibilityNodeInfo
-import com.lncosie.robot.flow.Envirment
-import com.lncosie.robot.flow.Event
-
 /**
  * Created by lncosie on 2016/5/2.
  */
@@ -25,7 +20,8 @@ object WechatId{
     //home
     final val IDHome4ButtonName="com.tencent.mm:id/id"
     final val IDHomeHistoryNickname="com.tencent.mm:id/cc"
-    final val TextMe ="我"
+    final val HomeMe ="我"
+    final val HomeFriendList ="通讯录"
     //me page
     final val IDMePageSelfName="com.tencent.mm:id/c46"
 
@@ -56,4 +52,6 @@ object WechatId{
     //friend list page
     final val IDFriendListNickname="com.tencent.mm:id/b5"
     final val IDFriendListNewFriends="com.tencent.mm:id/kt"
+    final val IDFriendListEndline="com.tencent.mm:id/bs"
+    final val IDFriendListView="com.tencent.mm:id/j0"
 }

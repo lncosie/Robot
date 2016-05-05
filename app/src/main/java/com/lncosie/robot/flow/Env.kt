@@ -15,4 +15,5 @@ data class Envirment(
         var userid:String,
         var upcode:String,
         var upload:String,
+        var todo:String?,//user
         val context: Context)

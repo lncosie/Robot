@@ -16,7 +16,7 @@ class WorkflowRunner(val envirment: Envirment) {
     private val executor = Executors.newCachedThreadPool()
     private @Volatile var current: Node? = null
     private @Volatile var dir: Task.Direction = Task.Direction.Forward
-    private @Volatile var stop_rcv=true
+    private @Volatile var stop_rcv = true
     private val stepEnded = Object()
 
 
@@ -26,22 +26,22 @@ class WorkflowRunner(val envirment: Envirment) {
         }
     }
 
-    fun stop(end: Node) {
+    fun stop() {
         current = null
     }
 
     fun step(event: Event) {
-        if(stop_rcv)
+        if (stop_rcv)
             return
         if (current != null) {
             if (current!!.task.isPassive()) {
-                Logger.log("Step:"+envirment.usernick + current!!.descript())
+                Logger.log("Step:" + envirment.usernick + current!!.descript())
                 dir = current!!.task.step(event, envirment)
-                Logger.log("Step:"+envirment.usernick + current!!.descript())
+                Logger.log("Step:" + envirment.usernick + current!!.descript())
                 if (dir != Task.Direction.Waiting) {
-                    stop_rcv=true
+                    stop_rcv = true
                     synchronized(stepEnded) {
-                            stepEnded.notify()
+                        stepEnded.notify()
                     }
                 }
             }
@@ -56,35 +56,39 @@ class WorkflowRunner(val envirment: Envirment) {
             if (current == null) {
                 return
             }
-            try {
-                worker = executor.submit<Unit> {
-                    Logger.log("Runs:"+envirment.usernick + current!!.descript())
+            worker = executor.submit<Unit> {
+                try {
+                    Logger.log("Runs:" + envirment.usernick + current!!.descript())
                     current!!.task.start(envirment)
                     if (current!!.task.isPassive()) {
                         dir = Task.Direction.Waiting
-                        stop_rcv=false
+                        stop_rcv = false
                         synchronized(stepEnded) {
-                           stepEnded.wait()
+                            stepEnded.wait()
                         }
-                    }else{
+                    } else {
                         dir = Task.Direction.Forward
                     }
                     current!!.task.end(envirment)
-                    Logger.log("Runs:"+envirment.usernick + current!!.descript())
+                    Logger.log("Runs:" + envirment.usernick + current!!.descript())
+                } catch(time: TimeoutException) {
+                    dir= Task.Direction.Back
+                } catch(e: NoElementFound) {
+                    dir= Task.Direction.Back
+                    return@submit
+                } finally {
                 }
-                worker.get(current!!.task.timeout(), TimeUnit.MILLISECONDS)
-                Logger.log("Switch:" + dir.toString())
-
+            }
+            worker.get(current!!.task.timeout(), TimeUnit.MILLISECONDS)
+            Logger.log("Switch:" + dir.toString())
+            try{
                 when (dir) {
                     Task.Direction.Forward -> current = current!!.forward.value
                     Task.Direction.Back -> current = current!!.backward.value
                 }
-
-            } catch(time: TimeoutException) {
-                current = current!!.backward.value
-            } catch(e: Exception) {
-                current = current!!.backward.value
-            } finally {
+            }catch(np:NullPointerException){
+                Logger.log("NotPointer stop")
+                current=null
             }
         }
     }

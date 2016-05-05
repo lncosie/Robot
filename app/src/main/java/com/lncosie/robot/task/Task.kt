@@ -1,6 +1,5 @@
 package com.lncosie.robot.task
 
-import android.view.accessibility.AccessibilityNodeInfo
 import com.lncosie.robot.flow.Envirment
 import com.lncosie.robot.flow.Event
 

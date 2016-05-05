@@ -8,11 +8,13 @@ class Ptr<T>(var ptr:(()-> T)?=null) {
     }
     constructor(init:T):this({init}){
     }
-    fun reset(fn:()-> T){
+    fun reset(fn:()-> T):Ptr<T>{
         ptr =fn
+        return this
     }
-    fun reset(init: T){
+    fun reset(init: T):Ptr<T>{
         ptr={init}
+        return this
     }
     fun notNull()=ptr!=null
     val  value by lazy { ptr!!()}
