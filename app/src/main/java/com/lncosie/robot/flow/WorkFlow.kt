@@ -2,7 +2,6 @@ package com.lncosie.robot.flow
 
 import com.lncosie.robot.Config.WechatId
 import com.lncosie.robot.task.*
-import com.lncosie.robot.unuse.TaskReset
 import com.lncosie.toolkit.Ptr
 
 /**
@@ -36,26 +35,29 @@ class WorkFlow {
     }
 
     fun graphSendFinish() {
-        val godetail = GotoDetail(SendFinish, false)
-        CheckRedoUser.reset(Node("检查完成用户", TaskCheckFinishUser(), godetail, AcceptNew))
+        var SendFinish = Ptr<Node>(Node("发送印书地址", TaskSendMessage(true), NodeReset, nop))
+        val sendfinish = GotoDetail(SendFinish, true)
+        CheckRedoUser.reset(Node("检查完成用户", TaskCheckFinishUser(), sendfinish, AcceptNew))
     }
 
     fun graphFetchUser() {
-        SendFinish.reset(Node("发送印书地址", TaskSendMessage(), NodeReset, nop))
+        var SendWaitmoment = Ptr<Node>(Node("发送印书地址", TaskSendMessage(), NodeReset, nop))
         Scroll.reset(Node("滑动朋友圈", TaskScrollPhoto(), Upload, NodeReset))
-
         val goToPhoto = GotoDetail(Scroll, false)
-        val sendFinish = GotoDetail(SendFinish, true)
+        val sendFinish = GotoDetail(SendWaitmoment, true)
 
         var Start = Ptr<Node>(Node("开启微信", TaskOpenWx(), sendFinish, nop))
-        var Close = Ptr<Node>(Node("关闭微信", TaskCloseWx(), NodeMakeBook, nop))
+        //异步检测
+        var Close = Ptr<Node>(Node("关闭微信", TaskCloseWx(), Start, nop))
         val csend = Ptr<Node>(Node("发送欢迎信息", TaskPerformClick(WechatId.IDDetailSendMessage), SendWelcome, NodeReset))
         NodeManstart.reset(Node("接受新朋友", TaskDetailSaveAccept(), csend, NodeReset))
         val accept = Ptr<Node>(Node("接受新朋友", TaskAcceptFriend(), NodeManstart, NodeReset))
         AcceptNew.reset(Node("接受新朋友", TaskOpenNewFriends(), accept, NodeReset))
         SendWelcome.reset(Node("发送欢迎信息", TaskSendMessage(), goToPhoto, NodeReset))
         Upload.reset(Node("上传数据", TaskDbUpload(), Close, NodeReset))
-        NodeMakeBook.reset(Node("等待打印", TaskWaitMakeBook(), Start, NodeReset))
+
+        //异步检测
+        //NodeMakeBook.reset(Node("等待打印", TaskWaitMakeBook(), Start, NodeReset))
     }
 
     fun GotoDetail(follow: Ptr<Node>, sendOrView: Boolean): Ptr<Node> {
@@ -73,7 +75,8 @@ class WorkFlow {
     var Scroll = Ptr<Node>();
     var Upload = Ptr<Node>();
     var NodeMakeBook = Ptr<Node>();
-    var SendFinish = Ptr<Node>();
+
+
     var SendWelcome = Ptr<Node>();
     var AcceptNew = Ptr<Node>();
 }

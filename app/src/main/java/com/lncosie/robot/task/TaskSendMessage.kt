@@ -46,7 +46,13 @@ open class TaskSendMessage(val finish:Boolean=false) : TaskPasssive() {
         val user=SuccessList()
         user.user=env.usernick
         Orm.save(user)
-        Orm.delete(BookSendUriList::class.java,"userid=?",arrayOf(env.userid));
+        val book=Orm.load(BookSendUriList::class.java,"userid=?",arrayOf(env.userid))
+        book.forEach {
+            if(it.uri!=null&&it.uri.length>0){
+                Orm.delete(it)
+            }
+        }
+
     }
 
 }
