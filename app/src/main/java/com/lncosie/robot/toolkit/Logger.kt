@@ -15,8 +15,8 @@ object Logger {
         Log.i("Robot", msg)
     }
 
-    fun loge(msg: String) {
-        Log.e("Robot", msg)
+    fun logi(msg: String) {
+        Log.i("Robot", msg)
     }
 
     fun exEnable() {

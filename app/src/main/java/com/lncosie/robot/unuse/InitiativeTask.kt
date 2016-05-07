@@ -13,12 +13,7 @@ import com.lncosie.toolkit.shell.Shell
 
 
 
-class TaskReset : TaskInitiative(){
-    override fun start(env: Envirment): Unit {
-        env.usernick =""
-        env.msg= RobotConfig.welcome
-    }
-}
+
 class FriendOpen: TaskInitiative(){
     override fun start(env: Envirment): Unit {
         Shell.post("am start "+ WechatId.WechatApp+ WechatId.WechatNewFriend)

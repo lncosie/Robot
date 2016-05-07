@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Base64;
-import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 
@@ -38,14 +37,14 @@ public class ReadDbUtil {
 
         File file = new File(dbFilePath);
         if (!file.exists()) {
-            Logger.INSTANCE.loge("无法打开数据库");
+            Logger.INSTANCE.logi("无法打开数据库");
             return false;
         }
 
         List<String> ids = EncryptedDbHelper.getUsernameByNickName(state.getUsernick());
 
         if (ids == null || ids.size() == 0) {
-            Logger.INSTANCE.loge("无法打开数据库");
+            Logger.INSTANCE.logi("无法打开数据库");
             return false;
         }
 

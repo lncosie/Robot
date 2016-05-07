@@ -79,8 +79,13 @@ public class Orm {
                 } else if (value != null)
                     values.put(field.getName(), value.toString());
             }
-            long id = getWriter().insert(getTableName(save.getClass()), null, values);
-            key.set(save, id);
+            Object id=key.get(save);
+            if (id==null) {
+                long index= getWriter().insert(getTableName(save.getClass()), null, values);
+                key.set(save, index);
+            } else {
+                getWriter().replace(getTableName(save.getClass()), null, values);
+            }
             return true;
         } catch (IllegalAccessException e) {
             e.printStackTrace();

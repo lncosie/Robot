@@ -42,10 +42,10 @@ class TaskDbUpload : TaskInitiative() {
     }
     fun addQueryList(env: Envirment){
         val book=BookSendUriList()
-        book.uri=env.msg
+        //book.uri=env.msg
         book.upcode=env.upcode
         book.userid=env.userid
-        book.userid = env.usernick
+        book.user = env.usernick
         Orm.save(book)
     }
 

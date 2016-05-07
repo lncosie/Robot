@@ -7,6 +7,7 @@ import android.graphics.PixelFormat
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import com.lncosie.robot.flow.*
+import com.lncosie.robot.task.ThreadCheckMakebook
 import com.lncosie.robot.utils.HeartBeat
 import com.lncosie.robot.utils.OverlayView
 import com.lncosie.toolkit.Logger
@@ -28,6 +29,7 @@ class RobotService : AccessibilityService() {
         showOverlay()
         workflow.make()
         heatbeat.start()
+        ThreadCheckMakebook.loop()
     }
     fun newinstance(){
         if(runner==null)

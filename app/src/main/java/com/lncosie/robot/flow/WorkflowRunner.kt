@@ -1,12 +1,9 @@
 package com.lncosie.robot.flow
 
 import com.lncosie.robot.Config.RobotConfig
-import com.lncosie.robot.Config.WechatId
 import com.lncosie.robot.task.Task
 import com.lncosie.toolkit.Logger
-
 import java.util.concurrent.Executors
-import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import kotlin.concurrent.thread
@@ -20,12 +17,12 @@ class WorkflowRunner(val envirment: Envirment) {
     private @Volatile var dir: Task.Direction = Task.Direction.Forward
 
 
-    private var stepEnded = Object()
-    private var mt:Thread?=null
+    private var dirChange = Object()
+    private var taskChange = Object()
+    private var mt: Thread? = null
     fun start(start: Node) {
-        envirment.msg=RobotConfig.welcome
-        stepEnded = Object()
-        mt=thread {
+        envirment.msg = RobotConfig.welcome
+        mt = thread {
             run(start)
         }
     }
@@ -37,13 +34,19 @@ class WorkflowRunner(val envirment: Envirment) {
 
     fun step(event: Event) {
         if (current != null) {
-            if (current!!.task.isPassive()&&dir===Task.Direction.Waiting) {
-                Logger.log(current!!.descript(envirment.usernick))
-                dir = current!!.task.step(event, envirment)
-                Logger.log( current!!.descript(envirment.usernick))
-                if (dir != Task.Direction.Waiting) {
-                    synchronized(stepEnded) {
-                        stepEnded.notify()
+            val now=current!!
+            if (now.task.isPassive()) {
+
+                Logger.log(now.descript(envirment.usernick))
+                var i = now.task.step(event, envirment)
+                Logger.log(now.descript(envirment.usernick))
+                Logger.logi(event.event.eventType.toString())
+                if (i != Task.Direction.Waiting) {
+                    synchronized(dirChange) {
+                        dirChange.notifyAll()
+                    }
+                    synchronized(taskChange){
+                        taskChange.wait()
                     }
                 }
             }
@@ -51,51 +54,50 @@ class WorkflowRunner(val envirment: Envirment) {
     }
 
     fun run(start: Node) {
-        dir= Task.Direction.Forward
+        dir = Task.Direction.Forward
         current = start
         while (true) {
             if (current == null) {
                 return
             }
-            val now=current!!
+            val now = current!!
             var worker = executor.submit<Unit> {
                 try {
                     Logger.log(now.descript(envirment.usernick))
                     now.task.start(envirment)
+                    synchronized(taskChange){
+                        taskChange.notifyAll()
+                    }
+
                     if (now.task.isPassive()) {
-                        dir = Task.Direction.Waiting
-                        //stop_rcv = false
-                        synchronized(stepEnded) {
-                           // while(dir=== Task.Direction.Waiting)
-                           stepEnded.wait()
+                        synchronized(dirChange) {
+                            dirChange.wait()
                         }
-                    } else {
-                        dir = Task.Direction.Forward
                     }
                     now.task.end(envirment)
+                    dir= Task.Direction.Forward
                     Logger.log(now.descript(envirment.usernick))
                 } catch(time: TimeoutException) {
-                    dir= Task.Direction.Back
                 } catch(e: Exception) {
-                    dir= Task.Direction.Back
+                    dir = Task.Direction.Back
                 } finally {
 
                 }
             }
             //Logger.log("Switch:" + dir.toString())
-            try{
+            try {
                 worker?.get(now.task.timeout(), TimeUnit.MILLISECONDS)
-            }catch(to:TimeoutException){
-                dir= Task.Direction.Back
-            }catch(stop:InterruptedException){
-                dir= Task.Direction.Waiting
+            } catch(to: TimeoutException) {
+                dir = Task.Direction.Back
+            } catch(stop: InterruptedException) {
+                dir = Task.Direction.Waiting
                 worker?.cancel(true)
-                mt=null
-                current=null
+                mt = null
+                current = null
                 return
-            }catch(np:Exception){
-                dir= Task.Direction.Back
-            }finally{
+            } catch(np: Exception) {
+                dir = Task.Direction.Back
+            } finally {
                 when (dir) {
                     Task.Direction.Forward -> current = now.forward.value
                     Task.Direction.Back -> current = now.backward.value
