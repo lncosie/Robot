@@ -1,6 +1,7 @@
 package com.lncosie.robot.task
 
 import android.accessibilityservice.AccessibilityService
+import com.lncosie.robot.Config.WechatId
 import com.lncosie.robot.flow.Envirment
 import com.lncosie.robot.flow.Event
 
@@ -18,7 +19,6 @@ class TaskGotoFriendList : TaskPasssive() {
             Task.Direction.Waiting
         }
         if (found == Task.Direction.Forward) return found
-        event.service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
         return Task.Direction.Waiting
     }
 }

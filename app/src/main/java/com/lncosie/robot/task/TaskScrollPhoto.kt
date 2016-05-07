@@ -1,6 +1,7 @@
 package com.lncosie.robot.task
 
 import android.view.accessibility.AccessibilityEvent
+import com.lncosie.robot.Config.WechatId
 import com.lncosie.robot.flow.Envirment
 import com.lncosie.robot.flow.Event
 import com.lncosie.toolkit.shell.Shell

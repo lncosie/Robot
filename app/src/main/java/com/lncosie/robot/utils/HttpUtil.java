@@ -1,9 +1,7 @@
 package com.lncosie.robot.utils;
 
-import android.util.Log;
-
 import com.alibaba.fastjson.JSON;
-import com.lncosie.robot.Config.Config;
+import com.lncosie.robot.Config.RobotConfig;
 import com.lncosie.robot.bean.LoopRsps;
 import com.lncosie.robot.bean.UploadRsps;
 
@@ -35,7 +33,7 @@ public class HttpUtil {
                 .addFormDataPart("content", content).build();
 
         Request request = new Request.Builder()
-                .url(Config.INSTANCE.getUrl() + "tools/up")
+                .url(RobotConfig.INSTANCE.getUrl() + "tools/up")
                 .post(requestBody)
                 .build();
 
@@ -60,7 +58,7 @@ public class HttpUtil {
     }
 
     public static LoopRsps loopMsg(String robot_id, String user, String up_code) {
-        HttpUrl.Builder builder = HttpUrl.parse(Config.INSTANCE.getUrl() + "tools/interval").newBuilder();
+        HttpUrl.Builder builder = HttpUrl.parse(RobotConfig.INSTANCE.getUrl() + "tools/interval").newBuilder();
         builder.addQueryParameter("robot_id", robot_id);
         builder.addQueryParameter("user", user);
         builder.addQueryParameter("up_code", up_code);
@@ -84,7 +82,7 @@ public class HttpUtil {
     }
 
     public static int heartBeatGet(String robot_id) {
-        HttpUrl.Builder builder = HttpUrl.parse(Config.INSTANCE.getUrl() + "tools/alive").newBuilder();
+        HttpUrl.Builder builder = HttpUrl.parse(RobotConfig.INSTANCE.getUrl() + "tools/alive").newBuilder();
         builder.addQueryParameter("robot_id", robot_id);
         String url = builder.build().toString();
         Request request = new Request.Builder().url(url).build();

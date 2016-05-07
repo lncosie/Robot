@@ -17,8 +17,7 @@ import com.lncosie.toolkit.Logger
 
 class RobotService : AccessibilityService() {
 
-
-    val runner= WorkflowRunner(Envirment("","","","","","",null,this))
+    var runner:WorkflowRunner?=null
     val workflow= WorkFlow()
     lateinit var start: Node
 
@@ -29,11 +28,12 @@ class RobotService : AccessibilityService() {
         showOverlay()
         workflow.make()
         heatbeat.start()
-
     }
-
+    fun newinstance(){
+        if(runner==null)
+            runner=WorkflowRunner(Envirment("","","","","","",this))
+    }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
         val stop=intent?.getBooleanExtra("stop",false)?:false
         if(stop){
             stop()
@@ -44,12 +44,16 @@ class RobotService : AccessibilityService() {
         return super.onStartCommand(intent, flags, startId)
     }
     private fun stop(){
-        runner.stop()
+        runner?.stop()
+        runner=null
+        Logger.log("已停止服务")
     }
     private fun start(auto: Boolean) {
-        //runner.stop(workflow.finish())
+        runner?.stop()
+        newinstance()
         start=if(auto)workflow.autoWork()else workflow.manWork()
-        runner.start(start)
+        runner?.start(start)
+        Logger.log("手动进入朋友圈")
     }
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -63,7 +67,7 @@ class RobotService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
-        runner.stop()
+        stop()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -71,7 +75,7 @@ class RobotService : AccessibilityService() {
             return
         val type=event!!.eventType
         if(event.source.refresh())
-            runner.step(Event(this, event!!))
+            runner?.step(Event(this, event!!))
         //if(type==AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED||type==AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED)
 
     }

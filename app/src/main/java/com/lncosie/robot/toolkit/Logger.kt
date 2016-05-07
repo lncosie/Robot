@@ -1,8 +1,8 @@
 package com.lncosie.toolkit
 
 import android.util.Log
-import com.lncosie.robot.books.Failed
-import com.lncosie.robot.log.Orm
+import com.lncosie.robot.log.Robot
+import com.lncosie.robot.orm.Orm
 import com.lncosie.robot.utils.OverlayView
 
 /**
@@ -18,10 +18,11 @@ object Logger {
     fun loge(msg: String) {
         Log.e("Robot", msg)
     }
-    fun exEnable(){
+
+    fun exEnable() {
         Thread.setDefaultUncaughtExceptionHandler { thread, e ->
-            val ex = Failed()
-            ex.reason = e.toString()
+            val ex = Robot()
+            ex.message = e.toString()
             Orm.save(ex)
         }
     }

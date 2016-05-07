@@ -1,5 +1,6 @@
 package com.lncosie.robot.task
 
+import com.lncosie.robot.Config.WechatId
 import com.lncosie.robot.flow.Envirment
 import com.lncosie.toolkit.shell.Shell
 
@@ -9,6 +10,6 @@ import com.lncosie.toolkit.shell.Shell
 class TaskOpenWx : TaskInitiative(){
     override fun start(env: Envirment): Unit {
         Shell.post("am start  -n "+ WechatId.WechatApp+ WechatId.Home)
-        wait_moment(5000)
+        wait_moment(500)
     }
 }

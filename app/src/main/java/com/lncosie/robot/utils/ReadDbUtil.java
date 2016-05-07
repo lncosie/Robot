@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSON;
 import com.lncosie.robot.bean.SnsItem;
 import com.lncosie.robot.flow.Envirment;
 import com.lncosie.toolkit.Logger;
+import com.lncosie.toolkit.shell.Shell;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,14 +27,14 @@ public class ReadDbUtil {
     public static boolean readDataBase(Context context, Envirment state) throws IOException, InterruptedException {
         String dbFilePath = ReadDbUtil.getUserPath() + "SnsMicroMsg.db";
 
-        ShellUtil.executeCmd("chmod 777 /data/data/com.tencent.mm");
-        ShellUtil.executeCmd("chmod 777 /data/data/com.tencent.mm/MicroMsg/");
-        ShellUtil.executeCmd("chmod 777 " + ReadDbUtil.getUserPath());
-        ShellUtil.executeCmd("chmod 666 " + ReadDbUtil.getUserPath() + "SnsMicroMsg.db");
-        ShellUtil.executeCmd("chmod 666 " + ReadDbUtil.getUserPath() + "SnsMicroMsg.db-shm");
-        ShellUtil.executeCmd("chmod 666 " + ReadDbUtil.getUserPath() + "SnsMicroMsg.db-wal");
-        ShellUtil.executeCmd("chmod 666 " + ReadDbUtil.getUserPath() + "SnsMicroMsg.db.ini");
-        ShellUtil.executeCmd("chmod 666 " + ReadDbUtil.getUserPath() + "SnsMicroMsg.db-journal");
+        Shell.INSTANCE.post("chmod 777 /data/data/com.tencent.mm");
+        Shell.INSTANCE.post("chmod 777 /data/data/com.tencent.mm/MicroMsg/");
+        Shell.INSTANCE.post("chmod 777 " + ReadDbUtil.getUserPath());
+        Shell.INSTANCE.post("chmod 666 " + ReadDbUtil.getUserPath() + "SnsMicroMsg.db");
+        Shell.INSTANCE.post("chmod 666 " + ReadDbUtil.getUserPath() + "SnsMicroMsg.db-shm");
+        Shell.INSTANCE.post("chmod 666 " + ReadDbUtil.getUserPath() + "SnsMicroMsg.db-wal");
+        Shell.INSTANCE.post("chmod 666 " + ReadDbUtil.getUserPath() + "SnsMicroMsg.db.ini");
+        Shell.INSTANCE.post("chmod 666 " + ReadDbUtil.getUserPath() + "SnsMicroMsg.db-journal");
 
         File file = new File(dbFilePath);
         if (!file.exists()) {
@@ -52,7 +53,7 @@ public class ReadDbUtil {
 
         state.setUserid(wxId);
         SQLiteDatabase snsDb = SQLiteDatabase.openOrCreateDatabase(file, null);
-        Logger.INSTANCE.loge("用来查的微信号是" + wxId);
+        //Logger.INSTANCE.loge("用来查的微信号是" + wxId);
         Cursor cur = snsDb.rawQuery("select userName, content, type, head, createTime, stringSeq, attrBuf from snsInfo where userName='" + wxId + "' order by createTime desc;", null);
         List<SnsItem> snsItems = new ArrayList<SnsItem>();
 
@@ -70,7 +71,7 @@ public class ReadDbUtil {
         }
 
         for (SnsItem thisItem : snsItems) {
-            Logger.INSTANCE.log("name " + thisItem.wxid + " time " + thisItem.createTime);
+            //Logger.INSTANCE.log("name " + thisItem.wxid + " time " + thisItem.createTime);
         }
         cur.close();
         snsDb.close();

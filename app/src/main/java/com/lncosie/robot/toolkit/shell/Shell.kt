@@ -2,23 +2,26 @@ package com.lncosie.toolkit.shell
 
 import java.io.BufferedOutputStream
 import java.io.BufferedWriter
+import java.io.OutputStreamWriter
 
 /**
  * Created by lncosie on 2016/5/2.
  */
 object Shell{
     var process:Process?=null
-    var cs:BufferedOutputStream?=null
+
+    var cs:OutputStreamWriter?=null
     fun post(command:String){
         open()
-        cs?.write((command+"\n").toByteArray())
-        cs?.flush()
+        cs!!.write(command)
+        cs!!.write("\n")
+        cs!!.flush()
     }
     fun open(){
         if(process==null)
         {
             process= Runtime.getRuntime().exec("su")
-            cs=BufferedOutputStream(process!!.outputStream)
+            cs= OutputStreamWriter(process!!.outputStream)
         }
     }
     fun close(){

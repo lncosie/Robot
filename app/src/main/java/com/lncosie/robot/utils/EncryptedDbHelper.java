@@ -3,6 +3,8 @@ package com.lncosie.robot.utils;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.lncosie.toolkit.shell.Shell;
+
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
@@ -28,13 +30,13 @@ import java.util.Locale;
  */
 public class EncryptedDbHelper {
     public static SQLiteDatabase getEncrypedDb() {
-        ShellUtil.executeCmd("chmod 777 /data/data/com.tencent.mm");
-        ShellUtil.executeCmd("chmod 777 /data/data/com.tencent.mm/MicroMsg/");
-        ShellUtil.executeCmd("chmod 777 " + ReadDbUtil.getUserPath());
-        ShellUtil.executeCmd("chmod 666 " + ReadDbUtil.getUserPath() + "EnMicroMsg.db");
-        ShellUtil.executeCmd("chmod 666 " + ReadDbUtil.getUserPath() + "EnMicroMsg.db-journal");
+        Shell.INSTANCE.post("chmod 777 /data/data/com.tencent.mm");
+        Shell.INSTANCE.post("chmod 777 /data/data/com.tencent.mm/MicroMsg/");
+        Shell.INSTANCE.post("chmod 777 " + ReadDbUtil.getUserPath());
+        Shell.INSTANCE.post("chmod 666 " + ReadDbUtil.getUserPath() + "EnMicroMsg.db");
+        Shell.INSTANCE.post("chmod 666 " + ReadDbUtil.getUserPath() + "EnMicroMsg.db-journal");
 
-        ShellUtil.executeCmd("chmod 777 /data/data/com.tencent.mm/MicroMsg/systemInfo.cfg");
+        Shell.INSTANCE.post("chmod 777 /data/data/com.tencent.mm/MicroMsg/systemInfo.cfg");
         HashMap sysInfoMap = loadHashMapFromFile("/data/data/com.tencent.mm/MicroMsg/systemInfo.cfg");
         if (sysInfoMap == null || sysInfoMap.size() == 0) {
             //Log.e(GlobalData.TAG, "读取systeminfo.cfg错误");
@@ -46,7 +48,7 @@ public class EncryptedDbHelper {
             return null;
         }
 
-        ShellUtil.executeCmd("chmod 777 /data/data/com.tencent.mm/MicroMsg/CompatibleInfo.cfg");
+        Shell.INSTANCE.post("chmod 777 /data/data/com.tencent.mm/MicroMsg/CompatibleInfo.cfg");
         HashMap comInfo = loadHashMapFromFile("/data/data/com.tencent.mm/MicroMsg/CompatibleInfo.cfg");
         if (comInfo == null) {
             //Log.e(GlobalData.TAG, "找不到compatibleInfo");

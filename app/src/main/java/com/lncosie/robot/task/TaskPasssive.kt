@@ -51,30 +51,31 @@ abstract open class TaskPasssive : Task {
     fun AccessibilityNodeInfo.click() = perform(AccessibilityNodeInfo.ACTION_CLICK)
     fun AccessibilityNodeInfo.perform(e: Int) {
         if (e == AccessibilityNodeInfo.ACTION_SCROLL_FORWARD) {
-            wait_moment(500)
-            Shell.post("input swipe 200 800 200 100")
             wait_moment(800)
+            Shell.post("input swipe 100 700 100 100")
+            wait_moment(100)
             return
-        }else if(e == AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD) {
-            wait_moment(500)
+        }else
+            if(e == AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD) {
+            wait_moment(800)
             Shell.post("input swipe 200 100 200 800")
-            wait_moment(800)
+            wait_moment(100)
             return
         }
-        else if (e == AccessibilityNodeInfo.ACTION_CLICK) {
-            wait_moment(300)
-            val rect = Rect()
-            this.getBoundsInScreen(rect)
-            Shell.post("input tap " + rect.centerX() + " " + rect.centerY())
-            wait_moment(500)
-            return
-        }
+//        else if (e == AccessibilityNodeInfo.ACTION_CLICK) {
+//            //wait_moment(300)
+//            val rect = Rect()
+//            this.getBoundsInScreen(rect)
+//            Shell.post("input tap " + rect.centerX() + " " + rect.centerY())
+//            wait_moment(1000)
+//            return
+//        }
         var p = this
         while (p != null) {
             if (p.isClickable) {
-                wait_moment(500)
+                //wait_moment(500)
                 p.performAction(e)
-                wait_moment(100)
+                wait_moment(1000)
                 break
             }
             p = p.parent

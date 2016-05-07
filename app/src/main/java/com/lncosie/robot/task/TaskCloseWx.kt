@@ -1,5 +1,6 @@
 package com.lncosie.robot.task
 
+import com.lncosie.robot.Config.WechatId
 import com.lncosie.robot.flow.Envirment
 import com.lncosie.toolkit.shell.Shell
 

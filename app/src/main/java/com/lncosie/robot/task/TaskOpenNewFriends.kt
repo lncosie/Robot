@@ -1,5 +1,6 @@
 package com.lncosie.robot.task
 
+import com.lncosie.robot.Config.WechatId
 import com.lncosie.robot.flow.Envirment
 import com.lncosie.toolkit.shell.Shell
 
@@ -9,6 +10,5 @@ import com.lncosie.toolkit.shell.Shell
 class TaskOpenNewFriends : TaskInitiative() {
     override fun start(env: Envirment): Unit {
         Shell.post("am start " + WechatId.WechatApp + WechatId.WechatNewFriend)
-        wait_moment(1000)
     }
 }
